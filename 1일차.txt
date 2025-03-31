@@ -1,0 +1,59 @@
+10.3.2.202
+
+src/main/resources 에 정적인 파일과 동적인 파일을 만들 수 있는
+static폴더 templates폴더가 필요함. 이게 없으면 웹을 진행할 수 없음. 
+웹 카테고리에서 SpringWeb을 추가하면 resource에static과 templates생김
+
+src/main/java :.java파일들
+src/main/resources : 이미지 ,스타일시트 ,자바스크립트 등 여기 
+src/main/webapp : jsp 파일들
+springboot는 jsp를 이용해서 화면을 구현하지 않도록 함. 그럼 화면은 뭘로 개발? 타임리프 ,머스키트와 같은 템플릿 엔진으로 함.
+그러나 진행은 가능함.  jsp를 이용하려면 라이브러리 다운로드하고 디렉토리 구조를 직접 만들면 가능함. 
+타임리프이요할거면 src/main/resources/templates에다가 하면됨.
+
+Inversion of Control : 스프링에서 가장 중요한 개념. 역제어. 자바코드를 수정하지 않고 TV 바꿀 수 있음.
+ - 객체 생성
+ - 객체와 객체간의 의존 관계
+이 두개를 컨테이너가 담당함.
+
+모든 제어를 자바 코드로 하는것 : 순제어. 
+객체를 만드는것과 의존관계를 자바코드로 작성하는것.
+
+스프링을 쓰는 이유.
+- 컨테이너가 생성될 때 메모리에 읽어들이는 것.
+- xml 파일을 읽어들이자마자 컨테이너가 객체생성을 해줌.
+- 컨테이너가 생성한 객체중에 아이디가 tv인 객체를 가져옴.
+- 변경할 때는 xml만 변경하고 자바 코드는 고치지 않음. 
+
+alt shift t -> 인터페이스만들기
+
+@Autowired -> 만약 스피커 객체가 메모리에 올라와있으면 알아서 엮어줘라 라는 뜻임. 그럼 굳이 setter 메서드가 필요가 없음. 
+@Component -> 컨테이너 실행될 때 객체를 메모리에 올려라
+XXXServiceImpl : @Service : 비즈니스 로직 처리
+XXXDAO(XXXRepository): @Repository : DB연동과 관련된 클래스
+XXXController : @Controller : 사용자 요청을 제어하는 클래스
+
+내가 만든 클래스(살)에는 이 어노테이션을 붙일 수 있는데 내가 만들지 않은 뼈(라이브러리)는 불가능함.
+그래서 내가 만들지 않은 클래스는 설정클래스를 만들어야함.
+이설정 클래스를 스프링 부트는 만들어 준다. 자동으로!! 그래서 신경쓸 필요가 없음.
+
+@Configuration을 설정 클래스에 붙여주는데 여기에는 Component가 포함되어 있어서 설정 클래스도 메모리에 듬.
+@ComponentScan(basePackages ={"패키지1","패키지2"}) 를 통해 패키지별 @Component붙은걸 메모리에올리기가능.
+
+application.properties 에 있는 값이 JAVA코드보다 우선순위가 높음. main에서 NONE해도  properties에서 servlet하면 웹으로 됨.
+
+banner.txt가 src/main/resources에 기본적으로 저절로 삽입됨.
+
+http://patorjk.com/software/taag/
+
+Springboot devtools 웹에서 작동하는 설정파일 변경하면 자동으로 리로딩.
+
+@RequestMapping(value = "/hello.do", method =RequestMethod.GET)
+@ResponseBody는 리턴값이므로 리턴 타입 앞에 쓰기 
+@RestController = @Controller + @ResponseBody
+
+C:\Users\student\.m2\repository -> 라이브러리들이 여기 들어있음.
+
+properties아래에 version을 등록하면 그 버전으로 바꿀 수 있음. 
+아니면 dependency안에서 <version></version>안의 값을 바꿔서 버전 낮출수 있음.
+이것이 커스터마이징임. 
