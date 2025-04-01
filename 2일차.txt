@@ -1,0 +1,29 @@
+ComponentScan -> 아무 설정안주면 이 메인클래스가 속하는 모든 패키지들을 스캔함.
+Configuration -> 환경설정, 빈등록가능.
+
+ApplicationRunner 인터페이스
+이 인터페이스를 implements 후 run 추상 메서드를 오버라이드 하게 됨.
+이는 ApplicationRunner를 구현한 객체가 메모리에 올라온 후 자동으로 실행되는 메서드.
+
+@ComponentScan은 내가 만든 객체들을 메모리에 띄워줌
+@EnableAutoConfiguration 은 스프링부트가 만든 자동생성 객체들을 메모리에 띄워줌.
+/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
+개발자간의 약속 : 자동설정 클래스는 AutoConfiguration 붙이자.
+자동설정 클래스는 우리가 만들일이 없음. 
+
+@ConditionalOnMissingBean 기본 파라미터 설정 안하면 리턴 타입이 같은게 있으면 실행 안함.
+
+내가 자동설정이 아닌 커스터마이징을 하고 싶다면?
+설정 파일을 만들어서 Bean등록을 하자. 그럼 내가 만든 걸 쓰게 됨. 
+
+@Component 는 클래스를 메모리에 올리는 것일 뿐 메서드를 사용하기 위해서는 메서드에 bean을 꼭 붙여야함. 	
+
+JDBC API = 스프링으로 db연결하겟다는뜻. 스타터임.
+
+기본설정으로 DataSource를 쓰면 메모리 DataSource를 써버림. 그래서 데이터베이스에 안들어감. 일시적이라서.
+이걸 설정파일로 오버라이딩해서 자동설정을 막아버림됨.
+
+@Value를 이용하여 프로퍼티 값을 가져올 수 있음.
+@Value("${author.name}"
+private String name;
