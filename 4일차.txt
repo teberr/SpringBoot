@@ -1,0 +1,62 @@
+페이징처리 정렬 등을 다 포함한걸 사용하기 -> JpaRepository 상속
+CRUD만 할 경우 -> CrudRepository
+
+목록 조회는 JPQL을 사용해야 함. 
+JPQL 사용법
+1. 애노테이션 
+@Query("SELECT b FROM BOARD AS b WHERE b.title LIKE %?1% ORDER BY b.seq DESC");
+	List<Board> getBoardList(String searchKeyword); 
+searchKeyword가 ?에 들어감
+컬럼이 아니라 엔티티에서 가져옴(컨테이너에 있는걸로 하는거므로)
+대소문자 구분됨.	
+
+함수 명에 Containing이 들어가는 순간 like 연산자로 변함.
+
+메서드이름만 정의하면 스프링이 자동으로 JPQL을 만들어준다.
+
+규칙 1
+findBoardByTitle(String keyword)
+-> 찾아라/엔티티/By/컬럼
+
+//페이징 처리
+Pageable -> data.domain.Pageable 
+
+
+	//JPQL 직접 사용하기 %?1% = 위치 기반, 물음표가 많은 경우 %:keyword로 하고 @param으로 받아줘야 가독성이 좋음.
+	@Query("SELECT b FROM BOARD AS b WHERE b.title LIKE %:keyword% ORDER BY b.seq DESC")
+	List<Board> getBoardList(@Param("keyword") String searchKeyword);
+
+
+조인을 많이하면 성능이 떨어짐. 테이블이 4개이상 조인을 하게 되면 성능이 안좋아지므로 네이티브 쿼리를 사용해야함.
+Value = "쓰던 쿼리"
+nativeQuery= true를 하여 사용할 수 있음. 
+
+QueryDSL 
+querydsl.apt.jpa.JPAAnnotationProcessor 플러그인이 src/main/qclass/QBoard.java를 자동으로 만들어서 등록해줌.
+
+테이블에는 참조변수가 없고 외래키가 있음
+엔티티는 참조변수가 있고 외래키가 없음.
+-> 즉 둘은 다르다! 패러다임의 불일치
+
+@ManyToOne 
+@JoinColumn(name="USER_ID")
+private User user;
+
+--> 여러개의 게시글에서 한명의 userid와 관련됨. 
+Board 테이블에 조인에 사용할 USER_ID컬럼 추가
+USER_ID 컬럼에는 user 변수가 참조하는 User 객체의 식별자 변수(PK컬럼과 매칭되는 값)저장.
+
+#FetchType.LAZY 설정이 동작하도록 세션을 유지하는 설정
+spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true
+이거 안쓰면 lazy는 필요할 때 조인하는데 위에서 조인 안해도 되는 경우 그거 조회하고 세션 끊겨서 select가 안됨.
+
+순환 참조 조심하기 
+양쪽에서 toString을 하면 서로 무한 참조 될 수 있으므로 양쪽에서 @ToString(exclude="상대편변수")해주기.
+xrp 1000
+eth 1000
+sol 1000
+doge 1000
+
+trx
+ada
+fil

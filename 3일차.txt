@@ -1,0 +1,105 @@
+dispatcher Servlet -> 브라우저의 요청을 Controller로 연결
+Controller , Service, Repository -> @ComponentScan이 돌면서 컨테이너가 전부 객체로 만듬.
+
+dispatcher Servlet 에게 요청을 보내는 건 브라우저에게 요청을 보내는 것과 동일하다. 
+testRestTemplate은 가짜 웹브라우저다. 
+url요청을 하면 문자열을 리턴한다.
+그 응답결과를 검증한다.
+
+스프링부트는 Facade를 이용함.
+Facade란? 프레임워크가 아니다.
+API다. 인터페이스의 덩어리다. 
+
+JPA란? ORM 임. Object를 Relation Table과 자동으로 Mapping해줌. Mapping에 필요한 SQL을 프레임워크가함.
+장점 : 개발단계에서는 mysql쓰다가 운영에서는 ORacle로 바꾸면 자동으로 바꿔줌.
+원조는 EJB였는데 2010년도에폐기됨.
+- 너무 복잡
+- 메모리 너무 많이씀 
+- 조인이 힘들
+- 서브쿼리도 제한
+
+DB연동을 할때 옛날에는 Hibernate가 제공하는 메서드를 이용했었다.
+그럼 프레임워크가 바뀌면?? 다 바꿔야했음.
+JPA는 Facade 즉 API기 때문에 JPA를 통해서 인터페이스의 추상메서드를 이용하면 프레임워크가 바뀌어도 편하다.
+
+로그를 제어하는 방법1 
+- properties에서 logging.level.org.springframework를 warn,info 등 변경하기.(주로사용)
+- src/main/resources에서 logback.xml파일 만들어서 쓰기
+
+TRACE로그 레벨 -> SQL의 ? 에 어떤 값이 가지게되는지 보고싶을때 주로씀. 
+
+로그를 파일로 출력하기
+logging.file.name = "저장할 파일 경로"
+
+#로그 패턴 지정
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %-5level ---[%thread] %logger{35} : %msg %n 
+# 		        날짜 		5단계 로그레벨 로그 발생된 스레드이름 로거 메시지 n
+logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss} %-5level ---[%thread] %logger{35} : %msg %n 
+
+--빌드 자동화 --
+프로젝트 maven build
+Goals clean package
+- clean : 빌드과정에서 생성되는 임시 파일들 제거
+- package : jar파일로 만들어라
+target 에서 jar파일 확인가능
+
+프로젝트 maven install
+-> local repo에 등록까지함. 
+
+---JPA---
+VO 생성해서 Map에 등록하면 JPA가 알아서 SQL로 만들어줌.
+
+mybatis로 db연동 하려면 인터페이스가 필요함.
+예제에서는 BoardMapper생성.
+
+Mybatis로 sql을 관리하는 방법. 
+Mapper interface로 해서 자바파일로 하는 방법
+ - Mapper Interface에 @Insert달고 SQL써주기
+ - 그리고 바로 아래에 함수 명 달기
+ - 실제 DAO파일에서 mybatis를 Autowired로 받아서 인터페이스의 함수명, 파라미터 넘겨주기 함수 구현.
+ - 비즈니스 로직인 Service에서 BoardDAO의 함수 사용하기.
+xml에 작성하는 방법
+
+
+JPA하는 방법
+1. VO 파일에서
+@Entity(jakarta.persistence) 애노테이션 달기 // 이 클래스로부터 생성된 객체를 Entity로 관리해라(필수)
+@Table(name="BOARD") 애노테이션 달기 // 이 클래스로부터 생성된 객체를 BOARD 테이블과 매핑해라. (옵션)
+
+
+	@Id // seq 변수가 BOARD 테이블의 PK 컬럼(SEQ)과 매핑된다.(필수)
+	@GeneratedValue // seq 변수에 자동으로 1부터 1씩 증가된 값을 할당해라.(옵션)
+	private int seq;
+
+2. src/main/resources/META-INF/persistence.xml 생성
+Dialect - 사투리,방언이란뜻 , 어떤 DBMS에 최적화된 SQL 명령어로 Generation 할 것인가? DBMS바뀌면 dialect만 수정하면 됨.
+JPA도 컨테이너를 운영하며 그 컨테이너는 persistence.xml을 읽어들임.
+
+3. createEntityManagerFactory는 src/main/resources/META_INF/persistence.xml 을 읽어서 Persistence-unit과 일치하는 팩토리를 만듬.
+
+4. 글 등록 삭제 수정은 트랜잭션 내에서 수행되어야함. (select는 필요없음) 
+EntityTransaction tx= em.getTransaction()
+tx.begin()
+내용
+tx.commit()
+
+
+jpql -> 전체 목록 조회를 위한 jpa용 쿼리
+단 테이블 명은 대소문자를 구분함. 이것은 엔티티명과 똑같이써야함!!!
+
+hbm2ddl.auto value="none"으로 하는 이유
+변수 하나 수정할때마다 테이블을 자꾸 바꾸기때문에. 
+실제 프로젝트에서는 테이블을 먼저 만들고나서 VO를 작성하기때문에 잘 안씀.
+
+GeneratedValue(Strategy = GenerationType.identity) ->h2에서만 쓸 수 있음. 1부터 1씩증가된 seq등록 오라클은사용불가 
+GeneratedValue(generator = "BOARD_SEQ_GENERATOR", Strategy = GenerationType.SEQUENCE) -> Oracle은 Sequqence로 써야함. 
+@SequenceGenerator(name="BOARD_SEQ_GENERATOR",sequenceName ="BOARD_SEQUENCE",initialValue=1,allocationSize=1) -> 전략명/시퀀스명/초기값/증가값 
+
+
+merge 메서드 = 식별자 변수 값이 세팅되어있으면 update 없으면 insert
+detached 상태와 관련있음(영속성 컨테이너 들어갔다가 나온 상태)
+
+Persistence Context = EntityManager(JPA의 컨테이너)
+persist 메서드에 의해 managed로 들어간 객체는 컨테이너가 관리하고 있고 이 이후 수정하게 되면 update가 내부적으로 작동함. 
+find 메서드를 통해 찾아도 managed로 들어감.
+
